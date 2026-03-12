@@ -1,0 +1,36 @@
+﻿@model List<ReportAutomationApp.Models.User>
+
+<h2>Users</h2>
+
+<table class="table table-bordered">
+
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Assign Clients</th>
+    </tr>
+
+    @foreach (var user in Model)
+    {
+        <tr>
+
+            <td>@user.FullName</td>
+            <td>@user.Email</td>
+            <td>@user.Role</td>
+
+            <td>
+                <a asp-controller="Admin"
+                   asp-action="AssignClient"
+                   asp-route-userId="@user.UserId"
+                   class="btn btn-primary">
+
+                    Assign Clients
+
+                </a>
+            </td>
+
+        </tr>
+    }
+
+</table>

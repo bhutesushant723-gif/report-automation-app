@@ -1,0 +1,72 @@
+﻿@{
+    var headers = ViewBag.Columns as List<string>;
+}
+
+<h3>Create Graph</h3>
+
+<form asp-action="CreateGraph" method="post">
+
+    <input type="hidden" name="ClientId" value="@ViewBag.ClientId" />
+
+    <div class="mb-3">
+        <label>Graph Name</label>
+        <input name="GraphName" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>X Axis Column</label>
+
+        @if (headers != null && headers.Count > 0)
+        {
+            <select name="XColumn" class="form-control">
+                @foreach (var col in headers)
+                {
+                    <option value="@col">@col</option>
+                }
+            </select>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                No Excel columns found. Please upload Excel first.
+            </div>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label>Chart Type</label>
+        <select name="ChartType" class="form-control">
+            <option value="Bar">Bar</option>
+            <option value="Line">Line</option>
+            <option value="Pie">Pie</option>
+            <option value="StackedBar">StackedBar</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Y Axis Columns</label>
+
+        @if (headers != null && headers.Count > 0)
+        {
+            @foreach (var col in headers)
+            {
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="YColumns"
+                           value="@col" />
+
+                    <label class="form-check-label">@col</label>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="mb-3">
+        <label>Slide Order</label>
+        <input name="SlideOrder" type="number" class="form-control" required />
+    </div>
+
+    <button class="btn btn-success">Save Graph</button>
+
+</form>

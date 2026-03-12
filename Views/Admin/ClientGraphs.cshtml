@@ -1,0 +1,39 @@
+﻿@model List<ReportAutomationApp.Models.GraphTemplate>
+
+<h3>Client Graph Templates</h3>
+
+<a asp-action="CreateGraph"
+   asp-route-clientId="@ViewBag.ClientId"
+   class="btn btn-success mb-3">
+    Add New Graph
+</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Graph Name</th>
+            <th>Chart Type</th>
+            <th>Slide Order</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var graph in Model)
+        {
+            <tr>
+                <td>@graph.GraphName</td>
+                <td>@graph.ChartType</td>
+                <td>@graph.SlideOrder</td>
+                <td>
+                    <a asp-action="EditGraph"
+                       asp-route-id="@graph.GraphTemplateId"
+                       class="btn btn-warning btn-sm">Edit</a>
+
+                    <a asp-action="DeleteGraph"
+                       asp-route-id="@graph.GraphTemplateId"
+                       class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,55 @@
+﻿@model List<ReportAutomationApp.Models.Client>
+
+<h2>Admin Dashboard</h2>
+
+<a asp-action="AddClient" class="btn btn-success">
+    Add Client
+</a>
+
+<a asp-controller="Admin"
+   asp-action="AddUser"
+   class="btn btn-success">
+    Create User
+</a>
+
+<a asp-controller="Admin"
+   asp-action="Users"
+   class="btn btn-info">
+
+    Manage Users
+
+</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Client Name</th>
+            <th>Manage Graphs</th>
+            <th>Upload Excel</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var client in Model)
+        {
+            <tr>
+                <td>@client.ClientName</td>
+
+                <td>
+                    <a asp-action="ClientGraphs"
+                       asp-route-id="@client.ClientId"
+                       class="btn btn-primary">
+                        Manage Graphs
+                    </a>
+                </td>
+
+                <td>
+                    <a asp-action="UploadExcel"
+                       asp-route-clientId="@client.ClientId"
+                       class="btn btn-success">
+                        Upload Excel
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

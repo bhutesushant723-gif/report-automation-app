@@ -1,0 +1,40 @@
+﻿@{
+    var clients = ViewBag.Clients as List<Client>;
+}
+
+<h3>Assign Clients</h3>
+
+<form asp-action="AssignClient" method="post">
+
+    <input type="hidden" name="userId" value="@ViewBag.UserId" />
+
+    @if (clients != null && clients.Count > 0)
+    {
+        foreach (var client in clients)
+        {
+            <div class="form-check">
+
+                <input type="checkbox"
+                       name="ClientIds"
+                       value="@client.ClientId"
+                       class="form-check-input" />
+
+                <label class="form-check-label">
+                    @client.ClientName
+                </label>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            No clients found. Please create clients first.
+        </div>
+    }
+
+    <br />
+
+    <button class="btn btn-success">Save</button>
+
+</form>

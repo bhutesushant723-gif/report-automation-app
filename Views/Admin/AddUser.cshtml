@@ -1,0 +1,33 @@
+﻿<h3>Create User</h3>
+
+<form asp-action="AddUser" method="post">
+
+    <div class="mb-3">
+        <label>Full Name</label>
+        <input name="FullName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input name="Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Password</label>
+        <input name="Password" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Role</label>
+        <select name="Role" class="form-control">
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+            <option value="Client">Client</option>
+        </select>
+    </div>
+
+    <input type="hidden" name="IsActive" value="true" />
+
+    <button class="btn btn-success">Create User</button>
+
+</form>

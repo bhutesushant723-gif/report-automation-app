@@ -1,0 +1,27 @@
+﻿@model List<ReportAutomationApp.Models.Client>
+
+<h2>User Dashboard</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Generate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var client in Model)
+        {
+            <tr>
+                <td>@client.ClientName</td>
+                <td>
+                    <a asp-action="GenerateReport"
+                       asp-route-clientId="@client.ClientId"
+                       class="btn btn-success">
+                        Generate Report
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

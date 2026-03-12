@@ -1,0 +1,18 @@
+﻿@model ReportAutomationApp.Models.ExcelUploadViewModel
+
+<h3>Upload Excel for Client</h3>
+
+<form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="ClientId" />
+
+    <div class="mb-3">
+        <label>Select Excel File</label>
+        <input type="file" asp-for="File" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Upload
+    </button>
+
+</form>

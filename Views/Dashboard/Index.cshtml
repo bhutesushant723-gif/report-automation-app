@@ -1,0 +1,361 @@
+﻿@* @model ReportAutomationApp.Models.ExcelUploadViewModel
+
+<div class="container py-5" style="background:#f8f9fa; min-height:100vh;">
+
+    <!-- HEADER -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Report Automation Dashboard</h2>
+        <p class="text-muted">Upload • Configure • Generate • Export</p>
+    </div>
+
+    <!-- ================= UPLOAD SECTION ================= -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body p-4">
+
+            <h5 class="fw-semibold mb-3">Upload Excel File</h5>
+
+            <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
+                <div class="row align-items-end">
+                    <div class="col-md-9">
+                        <label class="form-label">Select Excel File</label>
+                        <input type="file" asp-for="ExcelFile" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    @if (Model.Columns != null && Model.Columns.Count > 0)
+    {
+        <!-- ================= CHART CONFIG SECTION ================= -->
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body p-4">
+
+                <h5 class="fw-semibold mb-4">Chart Configuration</h5>
+
+                <form asp-action="GenerateChart" method="post">
+
+                    <div class="row">
+
+                        <!-- X AXIS -->
+                        <div class="col-md-4 mb-4">
+                            <label class="form-label fw-semibold">X Axis</label>
+                            <select asp-for="SelectedXColumn" class="form-select">
+                                @foreach (var xCol in Model.Columns)
+                                {
+                                    <option value="@xCol"
+                                            selected="@(Model.SelectedXColumn == xCol)">
+                                        @xCol
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Y AXIS -->
+                        <div class="col-md-4 mb-4">
+                            <label class="form-label fw-semibold">
+                                Y Axis (Numeric Only)
+                            </label>
+
+                            <!-- SHOW ALL HEADERS PROPERLY -->
+                            <div class="border rounded p-3"
+                                 style="max-height:250px; overflow-y:auto; background:#fff;">
+
+                                @foreach (var yCol in Model.Columns)
+                                {
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="SelectedYColumns"
+                                               value="@yCol"
+                                               @(Model.SelectedYColumns != null &&
+                                                                                      Model.SelectedYColumns.Contains(yCol)
+                                                                                      ? "checked" : "") />
+
+                                <label class="form-check-label">
+                                    @yCol
+                                </label>
+                            </div>
+                                                        }
+                            </div>
+                        </div>
+
+                        <!-- CHART TYPE -->
+                        <div class="col-md-4 mb-4">
+                            <label class="form-label fw-semibold">Chart Type</label>
+                            <select asp-for="ChartType" class="form-select">
+                                @foreach (var type in new[] { "Bar", "Line", "Pie" })
+                                {
+                                    <option value="@type"
+                                            selected="@(Model.ChartType == type)">
+                                        @type
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- GROUP FILTER -->
+                    @if (Model.GroupNames != null && Model.GroupNames.Any())
+                    {
+                        <hr class="my-4" />
+
+                        <label class="form-label fw-semibold">
+                            Select Groups (Only Ticked Will Show)
+                        </label>
+
+                        <div class="border rounded p-3"
+                             style="max-height:200px; overflow-y:auto; background:#fff;">
+
+                            <div class="row">
+                                @foreach (var name in Model.GroupNames)
+                                {
+                                    bool isChecked = Model.SelectedGroupNames != null
+                                    && Model.SelectedGroupNames.Contains(name);
+
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="SelectedGroupNames"
+                                                   value="@name"
+                                                   @(isChecked ? "checked=\"checked\"" : "") />
+
+                                            <label class="form-check-label">
+                                                @name
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success px-5">
+                            Generate Chart
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.XValues != null)
+    {
+        <!-- ================= CHART DISPLAY SECTION ================= -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-semibold mb-0">Generated Chart</h5>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-warning"
+                            onclick="exportToPPT()">
+                        Export to PPT
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-info"
+                            onclick="copyChartImage()">
+                        Copy Image
+                    </button>
+                </div>
+
+                <div style="width:900px; height:500px; margin:auto;">
+                    <canvas id="myChart" width="900" height="500"></canvas>
+                </div>
+
+                <form id="pptForm" asp-action="ExportToPPT" method="post">
+                    <input type="hidden"
+                           name="chartImageBase64"
+                           id="chartImageBase64" />
+                </form>
+
+            </div>
+        </div>
+
+        @section Scripts {
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    var labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.XValues));
+                    var values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.YValues));
+                    var chartType = "@ViewBag.ChartType";
+
+                    var ctx = document.getElementById('myChart').getContext('2d');
+
+                    function calculatePercentages(vals) {
+                        let total = vals.reduce((a, b) => a + b, 0);
+                        return vals.map(v => Math.round((v / total) * 100));
+                    }
+
+                    var percentages = calculatePercentages(values);
+
+                    // 🔥 YOUR ORIGINAL LOGIC PRESERVED
+                    if (chartType.toLowerCase() === "pie") {
+
+                        if (typeof ChartDataLabels !== 'undefined') {
+                            Chart.register(ChartDataLabels);
+                        }
+
+                        new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    data: values
+                                }]
+                            },
+                                            options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                    padding: {
+                        top: 40,
+                        bottom: 40,
+                        left: 80,
+                        right: 80
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 15
+                            }
+                        },
+                        datalabels: {
+                            color: '#000',
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 25,
+                            clip: false,
+                            font: {
+                                weight: 'bold',
+                                size: 13
+                            },
+                            formatter: function (value, context) {
+                                return labels[context.dataIndex] + " " +
+                                       percentages[context.dataIndex] + "%";
+                            }
+                        }
+                    }
+                }
+                        });
+
+                    } else if (chartType.toLowerCase() === "bar") {
+
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: "Total",
+                                        data: values,
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: "Percentage %",
+                                        data: percentages,
+                                        type: 'line',
+                                        yAxisID: 'y1'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        position: 'left'
+                                    },
+                                    y1: {
+                                        beginAtZero: true,
+                                        position: 'right',
+                                        grid: {
+                                            drawOnChartArea: false
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                    } else {
+
+                        new Chart(ctx, {
+                            type: chartType.toLowerCase(),
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Total",
+                                    data: values
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+
+                    }
+
+                });
+
+                function exportToPPT() {
+
+                    var canvas = document.getElementById("myChart");
+
+                    // Force resize before export
+                    canvas.style.width = "900px";
+                    canvas.style.height = "500px";
+
+                    var imageBase64 = canvas.toDataURL("image/png", 1.0);
+
+                    document.getElementById("chartImageBase64").value = imageBase64;
+                    document.getElementById("pptForm").submit();
+                }
+
+
+                async function copyChartImage() {
+
+                    try {
+                        const canvas = document.getElementById("myChart");
+
+                        // Convert canvas to blob
+                        const blob = await new Promise(resolve =>
+                            canvas.toBlob(resolve, "image/png")
+                        );
+
+                        await navigator.clipboard.write([
+                            new ClipboardItem({
+                                "image/png": blob
+                            })
+                        ]);
+
+                        alert("Chart copied to clipboard! You can now paste it.");
+
+                    } catch (err) {
+                        console.error("Copy failed:", err);
+                        alert("Copy not supported in this browser. Try Chrome or Edge.");
+                    }
+                }
+            </script>
+        }
+    }
+</div> *@
